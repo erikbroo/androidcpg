@@ -1,0 +1,20 @@
+<resources>
+    
+    <!-- Strings related to login -->
+    <string name="prompt_email">Usuario</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="action_sign_in">Conectar</string>
+    <string name="action_sign_in_short">Conectar</string>
+
+    <string name="error_invalid_email">Usuario Incorecto</string>
+    <string name="error_invalid_password">Contraseña incorrecta</string>
+    <string name="error_incorrect_password">Contraseña incorrecta</string>
+    <string name="error_field_required">Requerido</string>
+
+    <string name="prompt_host">Servidor Coppermine</string>
+    <string name="action_testhost">Test Servidor</string>
+
+    <string name="login_success_message_long">Identificado correctamente!\r\n\r\nNo necesitas abrir esta actividad de nuevo.\r\n\r\nPuedes Salir y subir tus fotos o videos desde el menu contextual(Compartir->AndroidCPG) de cualquier aplicacion de Android standard, por ejemplo: Galeria de Android o Explorador de Archivos de Android.\r\n\r\nAl pulsar Compartir->AndroidCPG, la actividad de subir ficheros de AndroidCPG sera iniciada, y ahi podras crear albumes nuevos, seleccionar album y subir el/los fichero(s).</string>
+    <string name="action_goback">Configuracion Acceso</string>
+    <string name="action_exit">Salir</string>
+</resources>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">AndroidCPG</string>
+    <string name="title_activity_albums">Albums</string>
+    <string name="select_album">Select Album</string>
+    <string name="action_settings">Settings</string>
+    <string name="uploadphoto">Upload Photo</string>
+    <string name="uploadphotos">Upload %d Photos</string>
+    <string name="uploadvideo">Upload Video</string>
+    <string name="uploadyoutube">Upload Youtube Video</string>
+    <string name="uploadvideos">Upload %d Videos</string>
+    <string name="uploadfiles">Upload %d Files</string>
+    <string name="newalbum">Create new album</string>
+    <string name="title_activity_send_share">AndroidCPG</string>
+    <string name="successuploading">%s uploaded correctly</string>
+    <string name="faileduploading">%s failed uploading</string>
+    <string name="successaddingalbum">Album added successfully</string>
+    <string name="failedaddingalbum">Failed adding album</string>
+    <string name="addnewalbum">Album name</string>
+    <string name="wait_a_few">Wait!</string>
+    <string name="loginsuccess">Logged In!</string>
+    <string name="loginfailed">Wrong username or password!</string>
+
+    <string name="hostcorrect">Host is OK!</string>
+    <string name="hostnotcorrect">Error connecting host!</string>
+    <string name="hostnotcorrect_nocoppermine">Host doesn\'t contain a Coppermine Gallery!</string>
+    <string name="hostnotcorrect_noplugin">This Coppermine Gallery is missing AndroidCPG plugin. Contact the administrator to install it!</string>
+
+    <string name="uploads_in_progress_skipping_new_ones">Uploads are in progress, Wait until they finish for uploading more!</string>
+    <string name="uploads_in_progress_login_not_allowed">Uploads are in progress, Wait until they finish for Login In!</string>
+
+    <string name="upload">Upload</string>
+    <string name="uploading">Uploading</string>
+    <string name="uploadprogressnotification">%1$s - %2$d%% uploaded</string>
+    <string name="nouploads">Nothing to upload.</string>
+    <string name="finisheduploading">Done uploading!</string>
+    <string name="finishednotificationdetails">Total files to upload: %1$d\r\nSuccess: %2$d\r\nFailed: %3$d\r\n</string>
+</resources>
+

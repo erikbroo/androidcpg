@@ -1,0 +1,21 @@
+<resources>
+    
+    <!-- Strings related to login -->
+    <string name="prompt_email">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Log In</string>
+    <string name="action_sign_in_short">Log In</string>
+
+    <string name="error_invalid_email">Wrong username!</string>
+    <string name="error_invalid_password">Wrong password!</string>
+    <string name="error_incorrect_password">Wrong password!</string>
+    <string name="error_field_required">Required</string>
+
+    <string name="prompt_host">Coppermine Host</string>
+    <string name="action_testhost">Test Host</string>
+
+    <string name="login_success_message_long">Login successfull!\r\n\r\nYou don\'t need to open this activity anymore.\r\n\r\nYou can finish this activity and upload photos or videos from the Share context menu (Share->AndroidCPG) at any standard Android application as the Android Gallery or Android File Explorer.\r\n\r\nWhen you choose Share->AndroidCPG, the AndroidCPG\'s upload file(s) activity will appear will be started, and then you will be able to create new album, select the album and upload the file(s).</string>
+    <string name="action_goback">Go back to login</string>
+    <string name="action_exit">Exit</string>
+
+</resources>
