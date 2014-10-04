@@ -79,7 +79,7 @@ public class UploadFileAsyncTask extends AsyncTask<String, Integer, Integer> {
 
 			// Don't use a cached copy.
 			conn.setUseCaches(false);
-
+			conn.setInstanceFollowRedirects(false);
 			// Use a post method.
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Connection", "Keep-Alive");

@@ -72,7 +72,7 @@ public class UploadRemoteVideoAsyncTask extends AsyncTask<String, Integer, Integ
 
 			// Don't use a cached copy.
 			conn.setUseCaches(false);
-
+			conn.setInstanceFollowRedirects(false);
 			// Use a post method.
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Connection", "Keep-Alive");

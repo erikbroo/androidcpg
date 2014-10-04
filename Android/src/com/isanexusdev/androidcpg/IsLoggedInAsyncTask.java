@@ -119,7 +119,7 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 
 					// Don't use a cached copy.
 					conn.setUseCaches(false);
-
+					conn.setInstanceFollowRedirects(false);
 					// Use a post method.
 					conn.setRequestMethod("POST");
 					conn.setRequestProperty("Connection", "Keep-Alive");
@@ -189,6 +189,13 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 					}
 				}
 			} else if (encryptedResponse.toLowerCase().contains("<h2>error</h2>")){
+				//Already logged in (logged at browser probably)
+				SharedPreferences settings = AndroidCPG.getSharedPreferences();
+				SharedPreferences.Editor editor = settings.edit();
+				editor.putString("username", params[0]);
+				editor.putString("password", params[1]);
+				editor.putString("id", params[1]);
+				editor.commit();
 				return 1;
 			} else {
 				return 0;

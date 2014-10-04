@@ -84,7 +84,7 @@ public class FetchAlbumsAsyncTask extends AsyncTask<String, Integer, Integer> {
 
 			// Don't use a cached copy.
 			conn.setUseCaches(false);
-
+			conn.setInstanceFollowRedirects(false);
 			InputStream is = conn.getInputStream();
 			// retrieve the response from server
 			int ch;

@@ -73,7 +73,7 @@ public class UploadCustomThumbAsyncTask extends AsyncTask<String, Integer, Integ
 
 			// Don't use a cached copy.
 			conn.setUseCaches(false);
-
+			conn.setInstanceFollowRedirects(false);
 			InputStream is = conn.getInputStream();
 			// retrieve the response from server
 			int ch;
