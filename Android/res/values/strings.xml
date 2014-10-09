@@ -36,5 +36,13 @@
     <string name="nouploads">Nothing to upload.</string>
     <string name="finisheduploading">Done uploading!</string>
     <string name="finishednotificationdetails">Total files to upload: %1$d\r\nSuccess: %2$d\r\nFailed: %3$d\r\n</string>
+    <string name="optionmenudeletecredentials">Delete Credentials</string>
+    <string name="optionmenusettings">Preferences</string>
+    <string name="optionmenuclose">Exit</string>
+    
+    <string name="settings_doublelogin_title">Double Login</string>
+    <string name="settings_doublelogin_summary">Enable this if Login or Send Share activity fails to login at first try. (Cookie handler is buggy in some devices, Double Login might fix the problem)</string>
+    
+    
 </resources>
 

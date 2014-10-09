@@ -75,7 +75,7 @@ public class UploadFileAsyncTask extends AsyncTask<String, Integer, Integer> {
 			// Allow Outputs
 			conn.setDoOutput(true);
 
-			conn.setChunkedStreamingMode(1024 * 128);
+			conn.setChunkedStreamingMode(1024 * 1024);
 
 			// Don't use a cached copy.
 			conn.setUseCaches(false);
@@ -110,7 +110,7 @@ public class UploadFileAsyncTask extends AsyncTask<String, Integer, Integer> {
 			dos.writeBytes("Content-Disposition: form-data; name=\"userpicture\";filename=\"" + URLEncoder.encode(file.getName(), "UTF-8") + "\"" + lineEnd);
 			dos.writeBytes(lineEnd);
 			// create a buffer of maximum size
-			byte[] buf = new byte[32*1024]; // 32K buffer
+			byte[] buf = new byte[1024*1024]; // 1M buffer
 			int readBytes;
 
 			InputStream is = new FileInputStream(file);
@@ -120,7 +120,7 @@ public class UploadFileAsyncTask extends AsyncTask<String, Integer, Integer> {
 			while((readBytes = is.read(buf)) != -1) {
 				dos.write(buf, 0, readBytes);
 				uploaded = uploaded + readBytes;
-				mListener.progress((int)(Math.max(uploaded * 100 / size,95)));
+				mListener.progress((int)(Math.min(uploaded * 100 / size,95)));
 			}
 
 			// send multipart form data necesssary after file data...

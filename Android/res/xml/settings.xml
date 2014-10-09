@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/app_name" android:key="settings">
+    <com.isanexusdev.androidcpg.CheckBoxExtendedSummaryPreference
+    android:key="doublelogin" android:title="@string/settings_doublelogin_title"
+        android:summary="@string/settings_doublelogin_summary"/>
+</PreferenceScreen>

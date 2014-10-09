@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/optionmenudeletecredentials"
+          android:icon="@android:drawable/ic_menu_delete"
+          android:title="@string/optionmenudeletecredentials"/>
+    <item android:id="@+id/optionmenusettings"
+          android:icon="@android:drawable/ic_menu_preferences"
+          android:title="@string/optionmenusettings"/>
+    <item android:id="@+id/optionmenuclose"
+          android:icon="@android:drawable/ic_menu_close_clear_cancel"
+          android:title="@string/optionmenuclose"/>
+</menu>

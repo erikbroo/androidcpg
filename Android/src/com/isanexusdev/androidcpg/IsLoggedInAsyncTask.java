@@ -180,7 +180,6 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 						SharedPreferences.Editor editor = settings.edit();
 						editor.putString("username", params[0]);
 						editor.putString("password", params[1]);
-						editor.putString("id", params[1]);
 						editor.commit();
 
 						return 1;
@@ -194,7 +193,6 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 				SharedPreferences.Editor editor = settings.edit();
 				editor.putString("username", params[0]);
 				editor.putString("password", params[1]);
-				editor.putString("id", params[1]);
 				editor.commit();
 				return 1;
 			} else {

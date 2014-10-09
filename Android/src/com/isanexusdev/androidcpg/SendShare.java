@@ -47,6 +47,7 @@ public class SendShare extends Activity {
 	//This is given by the getAlbumsTask, last category position for insertion and user category id (this data is necessary for new album insertion)
 	private int mCatPos = 0;
 	private int mCatId = 0;
+	int loginAtteps = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -328,15 +329,29 @@ public class SendShare extends Activity {
 		String username = settings.getString("username", "");
 		String password = settings.getString("password", "");
 		if (username.length() > 0 && password.length() > 0){
+			loginAtteps++;
+			if (loginAtteps >= 3){
+				loginAtteps = 1;
+			}
 			Utils.isLoggedIn(username,password, new IsLoggedInAsyncTask.IsLoggedInListener() {
 				@Override
 				public void result(int result) {
-					dissmissProgress();
 					Log.i(TAG, "isLoggedIn result: " + result);
 					if (result == 1) {
-						isLogged();
+						if (AndroidCPG.isDoubleLogin() && loginAtteps == 1){
+							isLoggedIn();
+						} else {
+							dissmissProgress();
+							isLogged();
+						}
+
 					} else {
-						notLogged();
+						if (AndroidCPG.isDoubleLogin() && loginAtteps == 1){
+							isLoggedIn();
+						} else {
+							dissmissProgress();
+							notLogged();
+						}
 					}
 				}
 			});

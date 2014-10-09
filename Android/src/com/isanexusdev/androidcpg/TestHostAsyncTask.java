@@ -121,23 +121,30 @@ public class TestHostAsyncTask extends AsyncTask<String, Integer, Integer> {
 	}
 
 	private int test(String url){
+		HttpGet request = null;
+		int result = -1;
 		try{
-			HttpGet request = new HttpGet(url);
+			request = new HttpGet(url);
 			HttpResponse response = mClient.execute(request);
 			int code = response.getStatusLine().getStatusCode();
 
 			if (code == 200){
-				return 1;
+				result =  1;
 			} else {
-				return 0;
+				result = 0;
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
-
 		}
 
-		return -1;
+		if (request != null){
+			try {
+				request.abort();
+			} catch (Exception e) {}
+		}
+
+		return result;
 	}
 }
 

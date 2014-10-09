@@ -2,6 +2,7 @@ package com.isanexusdev.androidcpg;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +11,9 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -39,6 +43,8 @@ public class LoginActivity extends Activity{
 	private Button mTestHostButton;
 	private EditText mHost;
 	private String mHostAddress = "";
+
+	int loginAtteps = 0;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -181,6 +187,39 @@ public class LoginActivity extends Activity{
 		}
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.optionsmenu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.optionmenudeletecredentials:
+			SharedPreferences settings = AndroidCPG.getSharedPreferences();
+			SharedPreferences.Editor editor = settings.edit();
+			editor.putString("username", "");
+			editor.putString("password", "");
+			editor.putString("lastAlbum", "");
+			editor.putString("host", "");
+			editor.commit();
+			return true;
+		case R.id.optionmenusettings:
+			Intent i = new Intent(getApplicationContext(), com.isanexusdev.androidcpg.Settings.class);
+			i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(i);
+			return true;
+		case R.id.optionmenuclose:
+			this.finish();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
 	/**
 	 * Attempts to sign in or register the account specified by the login form.
 	 * If there are form errors (invalid email, missing fields, etc.), the
@@ -188,6 +227,10 @@ public class LoginActivity extends Activity{
 	 */
 	public void attemptLogin() {
 		// Reset errors.
+		loginAtteps++;
+		if (loginAtteps >= 3){
+			loginAtteps = 1;
+		}
 		mUsernameView.setError(null);
 		mPasswordView.setError(null);
 
@@ -261,11 +304,26 @@ public class LoginActivity extends Activity{
 						getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 						InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 						imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+						if (AndroidCPG.isDoubleLogin() && loginAtteps == 1){
+							attemptLogin();
+						} else {
+							Utils.fetchAlbums(new FetchAlbumsAsyncTask.FetchAlbumsListener() {
+								@Override
+								public void result(FetchAlbumsAsyncTask task, int result) {
+									Log.i(TAG, "fetchAlbums result: " + result);
+								}
+							});
+						}
 						return;
 					} else {
-						mLoginSuccessView.setVisibility(View.GONE);
-						Toast.makeText(LoginActivity.this, R.string.loginfailed, Toast.LENGTH_SHORT).show();
-						mEmailSignInButton.setEnabled(true);
+						if (AndroidCPG.isDoubleLogin() && loginAtteps == 1){
+							attemptLogin();
+						} else {
+							mLoginSuccessView.setVisibility(View.GONE);
+							Toast.makeText(LoginActivity.this, R.string.loginfailed, Toast.LENGTH_SHORT).show();
+							mEmailSignInButton.setEnabled(true);
+						}
 					}
 				}
 			});

@@ -51,4 +51,8 @@ public class AndroidCPG extends Application{
 	public static CookieManager getCookieManager(){
 		return cookieManager;
 	}
+
+	public static boolean isDoubleLogin(){
+		return getSharedPreferences().getBoolean("doublelogin", false);
+	}
 }

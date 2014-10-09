@@ -36,4 +36,9 @@
     <string name="nouploads">Nada para subir.</string>
     <string name="finisheduploading">Carga Completada.</string>
     <string name="finishednotificationdetails">Numero de ficheros a subir: %1$d\r\nSubidos: %2$d\r\nFallos: %3$d\r\n</string>
+    <string name="optionmenudeletecredentials">Borrar credenciales</string>
+    <string name="optionmenusettings">Preferencias</string>
+    <string name="optionmenuclose">Salir</string>
+    <string name="settings_doublelogin_title">Acceso Doble</string>
+    <string name="settings_doublelogin_summary">Habilita esta opcion si la Actividad de Acceso o Envio de archivos falla al registrarse en el servidor. (El manejador de Cookies es defectuoso en algunos dispositivos. Esta opcion puede que solucione esos problemas)</string>
 </resources>
