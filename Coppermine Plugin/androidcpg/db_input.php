@@ -18,6 +18,7 @@ define('DB_INPUT_PHP', true);
 define('DISPLAYIMAGE_PHP', true);
 chdir('../../');
 require_once 'include/init.inc.php';
+require_once('androidcpg_enabled.php');
 require_once 'include/picmgmt.inc.php';
 require_once 'include/mailer.inc.php';
 require_once 'include/smilies.inc.php';

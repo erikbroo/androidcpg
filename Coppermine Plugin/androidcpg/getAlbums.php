@@ -15,6 +15,7 @@ define('ADMIN_PHP', true);
 chdir('../../');
 // Call basic functions, etc.
 require('include/init.inc.php');
+require_once('androidcpg_enabled.php');
 require('include/picmgmt.inc.php');
 
 // Check to see if user can upload pictures.  Quit with an error if user cannot.

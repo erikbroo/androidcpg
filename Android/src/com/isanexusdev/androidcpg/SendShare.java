@@ -335,7 +335,7 @@ public class SendShare extends Activity {
 			}
 			Utils.isLoggedIn(username,password, new IsLoggedInAsyncTask.IsLoggedInListener() {
 				@Override
-				public void result(int result) {
+				public void result(int result, IsLoggedInAsyncTask isLoggedInAsyncTask) {
 					Log.i(TAG, "isLoggedIn result: " + result);
 					if (result == 1) {
 						if (AndroidCPG.isDoubleLogin() && loginAtteps == 1){

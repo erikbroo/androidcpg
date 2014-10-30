@@ -39,10 +39,14 @@ public class LoginActivity extends Activity{
 	private View mLoginSuccessView;
 	private View mUsernameAndPasswordFormView;
 	private Button mEmailSignInButton;
+	private Button mShowResultButton;
+	
 
 	private Button mTestHostButton;
 	private EditText mHost;
 	private String mHostAddress = "";
+	private String mLastResult = "";
+	
 
 	int loginAtteps = 0;
 	@Override
@@ -120,6 +124,18 @@ public class LoginActivity extends Activity{
 				attemptLogin();
 			}
 		});
+		
+		mShowResultButton = (Button) findViewById(R.id.show_result_button);
+		mShowResultButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				WebDialog dialog = new WebDialog(LoginActivity.this, mLastResult);
+		        dialog.setCancelable(true);
+		        dialog.show();
+			}
+		});
+		
+		
 
 		mTestHostButton = (Button) findViewById(R.id.testhost);
 		mTestHostButton.setOnClickListener(new OnClickListener() {
@@ -184,6 +200,13 @@ public class LoginActivity extends Activity{
 			attemptLogin();
 		} else {
 			mEmailSignInButton.setEnabled(true);
+		}
+		
+		if (mProgressView.getVisibility() == View.GONE && mLoginSuccessView.getVisibility() == View.GONE && mUsernameAndPasswordFormView.getVisibility() == View.VISIBLE &&
+				mLastResult != null && mLastResult.trim().length() > 0){
+			mShowResultButton.setVisibility(View.VISIBLE);
+		} else {
+			mShowResultButton.setVisibility(View.GONE);
 		}
 	}
 
@@ -268,9 +291,11 @@ public class LoginActivity extends Activity{
 			showProgress(true);
 			mEmailSignInButton.setEnabled(false);
 			showProgress(true);
+			mLastResult = "";
+			mShowResultButton.setVisibility(View.GONE);
 			Utils.isLoggedIn(email, password, new IsLoggedInAsyncTask.IsLoggedInListener() {
 				@Override
-				public void result(int result) {
+				public void result(int result, IsLoggedInAsyncTask isLoggedInAsyncTask) {
 					showProgress(false);
 					Log.i(TAG, "isLoggedIn result: " + result);
 					if (result == 1) {
@@ -315,8 +340,8 @@ public class LoginActivity extends Activity{
 								}
 							});
 						}
-						return;
 					} else {
+						mLastResult = isLoggedInAsyncTask.getReply();
 						if (AndroidCPG.isDoubleLogin() && loginAtteps == 1){
 							attemptLogin();
 						} else {
@@ -324,6 +349,12 @@ public class LoginActivity extends Activity{
 							Toast.makeText(LoginActivity.this, R.string.loginfailed, Toast.LENGTH_SHORT).show();
 							mEmailSignInButton.setEnabled(true);
 						}
+					}
+					
+					if (mLastResult != null && mLastResult.trim().length() > 0){
+						mShowResultButton.setVisibility(View.VISIBLE);
+					} else {
+						mShowResultButton.setVisibility(View.GONE);
 					}
 				}
 			});

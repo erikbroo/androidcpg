@@ -19,6 +19,8 @@ define('IN_COPPERMINE', true);
 define('LOGIN_PHP', true);
 chdir('../../');
 require('include/init.inc.php');
+require_once('androidcpg_enabled.php');
+
 
 if (USER_ID) {
     cpg_die(ERROR, $lang_login_php['err_already_logged_in'], __FILE__, __LINE__);

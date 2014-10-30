@@ -41,4 +41,11 @@
     <string name="optionmenuclose">Salir</string>
     <string name="settings_doublelogin_title">Acceso Doble</string>
     <string name="settings_doublelogin_summary">Habilita esta opcion si la Actividad de Acceso o Envio de archivos falla al registrarse en el servidor. (El manejador de Cookies es defectuoso en algunos dispositivos. Esta opcion puede que solucione esos problemas)</string>
+    
+    <string name="webview_mode_button_code">Mostrar código</string>
+    <string name="webview_mode_button_html">Mostrar html</string>
+    
+    <string name="webview_copy_button">Copiar Texto</string>
+    
+    <string name="action_show_result">Ver Resultado</string>
 </resources>

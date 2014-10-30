@@ -9,15 +9,18 @@ import java.net.URL;
 
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 	private static final String TAG = IsLoggedInAsyncTask.class.getName();
 	URL connectURL;
 	boolean success;
+	String mReply = "";
 	private IsLoggedInListener mListener = null;
 	public static interface IsLoggedInListener {
-		public void result(int result);
+		public void result(int result, IsLoggedInAsyncTask isLoggedInAsyncTask);
 	}
+	
 	public IsLoggedInAsyncTask(IsLoggedInListener listener){
 		mListener = listener;
 		try{
@@ -27,11 +30,15 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 		}
 	}
 
+	public String getReply(){
+		return mReply;
+	}
+	
 	@Override
 	protected void onCancelled() {
 		if (mListener != null){
 			try {
-				mListener.result(0);
+				mListener.result(0, this);
 			} catch (Exception e) {}
 		}
 	}
@@ -40,14 +47,13 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 	protected void onPostExecute(Integer result) {
 		if (mListener != null){
 			try {
-				mListener.result(result);
+				mListener.result(result, this);
 			} catch (Exception e) {}
 		}
 	}
 	@Override
 	protected Integer doInBackground(String... params) {
 		success = true;
-		String encryptedResponse = null;
 		HttpURLConnection conn = null;
 		try
 		{
@@ -75,8 +81,9 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 				b.append( (char)ch );
 			}
 			try {
-				encryptedResponse=b.toString();
+				mReply=b.toString();
 			} catch (Exception e) {
+				mReply = Utils.getStackTrace(e);
 				success = false;
 			}
 			try {
@@ -89,15 +96,18 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 			} catch (Exception e){}
 		}
 		catch (MalformedURLException ex){
+			mReply = Utils.getStackTrace(ex);
 			success = false;
 		}catch (IOException ioe){
+			mReply = Utils.getStackTrace(ioe);
 			success = false;
 		}catch (Exception ioe){
+			mReply = Utils.getStackTrace(ioe);
 			success = false;
 		}
 
-		if (success && encryptedResponse != null){
-			if (encryptedResponse.toLowerCase().contains("form action=\"login.php?referer=")){
+		if (success && mReply != null){
+			if (mReply.toLowerCase().contains("form action=\"login.php?referer=")){
 				try
 				{
 					String lineEnd = "\r\n";
@@ -153,8 +163,9 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 						b.append( (char)ch );
 					}
 					try {
-						encryptedResponse=b.toString();
+						mReply=b.toString();
 					} catch (Exception e) {
+						mReply = Utils.getStackTrace(e);
 						success = false;
 					}
 					try {
@@ -167,15 +178,18 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 					} catch (Exception e){}
 				}
 				catch (MalformedURLException ex){
+					mReply = Utils.getStackTrace(ex);
 					success = false;
 				}catch (IOException ioe){
+					mReply = Utils.getStackTrace(ioe);
 					success = false;
 				}catch (Exception ioe){
+					mReply = Utils.getStackTrace(ioe);
 					success = false;
 				}
 
-				if (success && encryptedResponse != null){
-					if (encryptedResponse.toLowerCase().contains("<div class=\"cpg_message_success\">")){
+				if (success && mReply != null){
+					if (mReply.toLowerCase().contains("<div class=\"cpg_message_success\">")){
 						SharedPreferences settings = AndroidCPG.getSharedPreferences();
 						SharedPreferences.Editor editor = settings.edit();
 						editor.putString("username", params[0]);
@@ -187,14 +201,19 @@ public class IsLoggedInAsyncTask extends AsyncTask<String, Integer, Integer> {
 						return 0;
 					}
 				}
-			} else if (encryptedResponse.toLowerCase().contains("<h2>error</h2>")){
-				//Already logged in (logged at browser probably)
-				SharedPreferences settings = AndroidCPG.getSharedPreferences();
-				SharedPreferences.Editor editor = settings.edit();
-				editor.putString("username", params[0]);
-				editor.putString("password", params[1]);
-				editor.commit();
-				return 1;
+			} else if (mReply.toLowerCase().contains("<h2>error</h2>")){
+				if (mReply.toLowerCase().contains("plugin not enabled")){
+					mReply = "Plugin not enabled";
+					return 0;
+				} else {
+					//Already logged in (logged at browser probably)
+					SharedPreferences settings = AndroidCPG.getSharedPreferences();
+					SharedPreferences.Editor editor = settings.edit();
+					editor.putString("username", params[0]);
+					editor.putString("password", params[1]);
+					editor.commit();
+					return 1;
+				}
 			} else {
 				return 0;
 			}

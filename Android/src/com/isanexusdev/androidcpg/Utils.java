@@ -1,5 +1,7 @@
 package com.isanexusdev.androidcpg;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -148,5 +150,14 @@ public class Utils {
 
 		return false;
 	}
+	
+	public static String getStackTrace(Throwable t){
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw, true);
+        t.printStackTrace(pw);
+        pw.flush();
+        sw.flush();
+        return sw.toString();
+    }
 
 }

@@ -19,6 +19,7 @@ define('ALBMGR_PHP', true);
 define('PROFILE_PHP', true);
 chdir('../../');
 require('include/init.inc.php');
+require_once('androidcpg_enabled.php');
 
 /**
  * Local functions definition
