@@ -28,7 +28,9 @@ public class UploadService extends Service {
 	public String[] mAlbumsArray = new String[0];
 	public String mRemoteVideoUpload = new String();
 	public String mRemoteVideoUploadName = new String();
+	public String[] mRemoteVideoUploadDetails = null;
 	public List<Uri> mFileUploads = new ArrayList<Uri>();
+	public List<String[]> mFileUploadsDetails = new ArrayList<String[]>();
 	public List<Uri> mFileUploadsFailed = new ArrayList<Uri>();
 	public List<Uri> mFileUploadsSuccess = new ArrayList<Uri>();
 	public int mSelectedAlbumId = -1;
@@ -117,7 +119,7 @@ public class UploadService extends Service {
 		}
 
 		if (mRemoteVideoUpload.length() > 0){
-			Utils.uploadRemoteVideo(mAlbums.get(mSelectedAlbumId)[0], mRemoteVideoUploadName, mRemoteVideoUpload, Utils.extractYoutubeVideoId(mRemoteVideoUpload), new UploadRemoteVideoAsyncTask.UploadRemoteVideoListener() {
+			Utils.uploadRemoteVideo(mAlbums.get(mSelectedAlbumId)[0], mRemoteVideoUploadName, mRemoteVideoUpload, Utils.extractYoutubeVideoId(mRemoteVideoUpload), mRemoteVideoUploadDetails[0], mRemoteVideoUploadDetails[1], new UploadRemoteVideoAsyncTask.UploadRemoteVideoListener() {
 				@Override
 				public void result(final int result) {
 					final SendShare sendShareActivity = AndroidCPG.getSendShareActivity();
@@ -193,6 +195,7 @@ public class UploadService extends Service {
 			});
 		} else {
 			final Uri currentUri = mFileUploads.get(mCurrentFileIndex);
+			final String[] details = mFileUploadsDetails.get(mCurrentFileIndex); 
 			final String filePath = Utils.getPathFromUri(currentUri);
 			if (sendShareActivity != null) {
 				sendShareActivity.mUploadprogress.setVisibility(View.VISIBLE);
@@ -207,7 +210,7 @@ public class UploadService extends Service {
 				}
 			}
 
-			Utils.uploadFile(mAlbums.get(mSelectedAlbumId)[0], filePath, new UploadFileAsyncTask.UploadFileListener() {
+			Utils.uploadFile(mAlbums.get(mSelectedAlbumId)[0], filePath, details[0], details[1], new UploadFileAsyncTask.UploadFileListener() {
 				@Override
 				public void result(final int result) {
 					final SendShare sendShareActivity = AndroidCPG.getSendShareActivity();

@@ -17,9 +17,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
@@ -29,7 +32,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class SendShare extends Activity {
@@ -41,6 +46,12 @@ public class SendShare extends Activity {
 	public ImageView mPreview = null;
 	private AlertDialog mAddNewAlbumDialog = null;
 	private ProgressDialog mProgressDialog = null;
+	private EditText mTitleTextView = null;
+	private EditText mCaptionTextView = null;
+
+	private Button mNextItemButton = null;
+	private Button mPrevItemButton = null;
+	private TextView mPreviewNotAvailable = null;
 
 	private boolean mCanCreateAlbums = false;
 
@@ -49,16 +60,54 @@ public class SendShare extends Activity {
 	private int mCatId = 0;
 	int loginAtteps = 0;
 
+	int currentItem = 0;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		AndroidCPG.setSendShareActivity(this);
 		setContentView(R.layout.activity_send_share);
+		mPreviewNotAvailable = (TextView) findViewById(R.id.preview_not_available);
 		mPreview = (ImageView) findViewById(R.id.preview);
 		mUploadButton = (Button) findViewById(R.id.upload);
 		mNewAlbumButton = (Button) findViewById(R.id.newalbum);
 		mAlbumsList = (Spinner) findViewById(R.id.albums);
 		mUploadprogress = (ProgressBar) findViewById(R.id.uploadprogress);
+		mTitleTextView = (EditText) findViewById(R.id.image_title);
+		mCaptionTextView = (EditText) findViewById(R.id.image_caption);
+		mNextItemButton = (Button) findViewById(R.id.next_item);
+		mPrevItemButton = (Button) findViewById(R.id.prev_item);
+		mNextItemButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				currentItem++;
+				setItemDetails();				
+			}
+		});
+		mPrevItemButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				currentItem--;
+				setItemDetails();				
+			}
+		});
+		mTitleTextView.addTextChangedListener(new TextWatcher()
+		{
+			public void afterTextChanged(Editable paramEditable){
+				titleChanged(paramEditable.toString());
+			}
+			public void beforeTextChanged(CharSequence paramCharSequence, int paramInt1, int paramInt2, int paramInt3){}
+			public void onTextChanged(CharSequence paramCharSequence, int paramInt1, int paramInt2, int paramInt3){}
+		});
+
+		mCaptionTextView.addTextChangedListener(new TextWatcher()
+		{
+			public void afterTextChanged(Editable paramEditable){
+				captionChanged(paramEditable.toString());
+			}
+			public void beforeTextChanged(CharSequence paramCharSequence, int paramInt1, int paramInt2, int paramInt3){}
+			public void onTextChanged(CharSequence paramCharSequence, int paramInt1, int paramInt2, int paramInt3){}
+		});
 
 		// Get intent, action and MIME type
 		final Intent intent = getIntent();
@@ -98,6 +147,10 @@ public class SendShare extends Activity {
 			mNewAlbumButton.setEnabled(false);
 			mUploadButton.setEnabled(false);
 			mAlbumsList.setEnabled(false);
+			mTitleTextView.setEnabled(false);
+			mCaptionTextView.setEnabled(false);
+			mNextItemButton.setEnabled(false);
+			mPrevItemButton.setEnabled(false);
 
 			//populate album list
 			populateAlbums();
@@ -107,6 +160,10 @@ public class SendShare extends Activity {
 					mNewAlbumButton.setEnabled(false);
 					mUploadButton.setEnabled(false);
 					mAlbumsList.setEnabled(false);
+					mTitleTextView.setEnabled(false);
+					mCaptionTextView.setEnabled(false);
+					mNextItemButton.setEnabled(false);
+					mPrevItemButton.setEnabled(false);
 				}
 			});
 		}
@@ -115,6 +172,7 @@ public class SendShare extends Activity {
 
 	void continueOnCreate(String action,  String type, Intent intent){
 		boolean handled = false;
+		currentItem = 0;
 		if (Intent.ACTION_SEND.equals(action) && type != null) {
 			if (type.startsWith("image/") || type.startsWith("video/")) {
 				handled = handleSend(intent);
@@ -139,9 +197,13 @@ public class SendShare extends Activity {
 							UploadService uploadService = AndroidCPG.getUploadService();
 							uploadService.mRemoteVideoUploadName = buildValidName(value.substring(0,index))+".youtube";
 							uploadService.mRemoteVideoUpload = value.substring(index + 2);
+							uploadService.mRemoteVideoUploadDetails = new String[2];
 							uploadService.setVideoThumb(Utils.extractYoutubeVideoId(uploadService.mRemoteVideoUpload));
 							mUploadButton.setText(R.string.uploadyoutube);
-
+							mTitleTextView.setEnabled(true);
+							mCaptionTextView.setEnabled(true);
+							mNextItemButton.setEnabled(true);
+							mPrevItemButton.setEnabled(true);
 						} else {
 							handled = false;
 						}
@@ -158,9 +220,15 @@ public class SendShare extends Activity {
 
 		mNewAlbumButton.setEnabled(false);
 		mUploadButton.setEnabled(false);
+		mTitleTextView.setEnabled(false);
+		mCaptionTextView.setEnabled(false);
+		mNextItemButton.setEnabled(false);
+		mPrevItemButton.setEnabled(false);
+		setItemDetails();
 		UploadService uploadService = AndroidCPG.getUploadService();
 		if (!handled && uploadService.mFileUploads.size() == 0) {
 			mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+			//mPreviewNotAvailable.setVisibility(View.VISIBLE);
 			mAlbumsList.setEnabled(false);
 			Toast.makeText(SendShare.this, R.string.nouploads, Toast.LENGTH_LONG).show();
 			new Handler().postDelayed(new Runnable() {
@@ -177,6 +245,9 @@ public class SendShare extends Activity {
 		} else {
 			if (!handled){
 				mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+				mPreviewNotAvailable.setVisibility(View.VISIBLE);
+			} else {
+				mPreviewNotAvailable.setVisibility(View.GONE);
 			}
 			createProgress();
 			isLoggedIn();
@@ -210,6 +281,10 @@ public class SendShare extends Activity {
 						mNewAlbumButton.setEnabled(false);
 						mUploadButton.setEnabled(false);
 						mAlbumsList.setEnabled(false);
+						mTitleTextView.setEnabled(false);
+						mCaptionTextView.setEnabled(false);
+						mNextItemButton.setEnabled(false);
+						mPrevItemButton.setEnabled(false);
 						uploadService.uploadNextFile();
 					}
 				});
@@ -420,6 +495,10 @@ public class SendShare extends Activity {
 		}
 		mNewAlbumButton.setEnabled(false);
 		mUploadButton.setEnabled(false);
+		mTitleTextView.setEnabled(false);
+		mCaptionTextView.setEnabled(false);
+		mNextItemButton.setEnabled(false);
+		mPrevItemButton.setEnabled(false);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(R.string.addnewalbum);
 
@@ -443,6 +522,10 @@ public class SendShare extends Activity {
 				try {
 					mNewAlbumButton.setEnabled(mCanCreateAlbums);
 					mUploadButton.setEnabled(true);
+					mTitleTextView.setEnabled(true);
+					mCaptionTextView.setEnabled(true);
+					mNextItemButton.setEnabled(true);
+					mPrevItemButton.setEnabled(true);
 				} catch (Exception e){}
 				mAddNewAlbumDialog = null;
 			}
@@ -466,6 +549,10 @@ public class SendShare extends Activity {
 				try {
 					mNewAlbumButton.setEnabled(mCanCreateAlbums);
 					mUploadButton.setEnabled(true);
+					mTitleTextView.setEnabled(true);
+					mCaptionTextView.setEnabled(true);
+					mNextItemButton.setEnabled(true);
+					mPrevItemButton.setEnabled(true);
 				} catch (Exception e){}
 			}
 		});
@@ -476,6 +563,10 @@ public class SendShare extends Activity {
 				try {
 					mNewAlbumButton.setEnabled(mCanCreateAlbums);
 					mUploadButton.setEnabled(true);
+					mTitleTextView.setEnabled(true);
+					mCaptionTextView.setEnabled(true);
+					mNextItemButton.setEnabled(true);
+					mPrevItemButton.setEnabled(true);
 				} catch (Exception e){}
 
 			}
@@ -550,6 +641,10 @@ public class SendShare extends Activity {
 			mAlbumsList.setSelection(uploadService.mSelectedAlbumId);
 			if (!uploadService.isUploading) {
 				mUploadButton.setEnabled(true);
+				mTitleTextView.setEnabled(true);
+				mCaptionTextView.setEnabled(true);
+				mNextItemButton.setEnabled(true);
+				mPrevItemButton.setEnabled(true);
 			}
 		} else if (adapter.getCount() > 0){
 			uploadService.mSelectedAlbumId = 0;
@@ -559,10 +654,18 @@ public class SendShare extends Activity {
 			editor.commit();
 			if (!uploadService.isUploading) {
 				mUploadButton.setEnabled(true);
+				mTitleTextView.setEnabled(true);
+				mCaptionTextView.setEnabled(true);
+				mNextItemButton.setEnabled(true);
+				mPrevItemButton.setEnabled(true);
 			}
 		} else {
 			uploadService.mSelectedAlbumId = -1;
 			mUploadButton.setEnabled(false);
+			mTitleTextView.setEnabled(false);
+			mCaptionTextView.setEnabled(false);
+			mNextItemButton.setEnabled(false);
+			mPrevItemButton.setEnabled(false);
 		}
 
 		mAlbumsList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -580,6 +683,10 @@ public class SendShare extends Activity {
 				editor.commit();
 				if (!uploadService.isUploading) {
 					mUploadButton.setEnabled(true);
+					mTitleTextView.setEnabled(true);
+					mCaptionTextView.setEnabled(true);
+					mNextItemButton.setEnabled(true);
+					mPrevItemButton.setEnabled(true);
 				}
 			}
 
@@ -593,6 +700,10 @@ public class SendShare extends Activity {
 				}
 				uploadService.mSelectedAlbumId = -1;
 				mUploadButton.setEnabled(false);
+				mTitleTextView.setEnabled(false);
+				mCaptionTextView.setEnabled(false);
+				mNextItemButton.setEnabled(false);
+				mPrevItemButton.setEnabled(false);
 			}
 		});
 
@@ -636,6 +747,7 @@ public class SendShare extends Activity {
 			return;
 		}
 		uploadService.mFileUploads.add(imageUri);
+		uploadService.mFileUploadsDetails.add(new String[2]);
 		handleSendImage(imageUri);
 	}
 
@@ -656,6 +768,7 @@ public class SendShare extends Activity {
 			return;
 		}
 		uploadService.mFileUploads.add(videoUri);
+		uploadService.mFileUploadsDetails.add(new String[2]);
 		handleSendVideo(videoUri);
 	}
 
@@ -678,12 +791,14 @@ public class SendShare extends Activity {
 			}
 			for (Uri imageUri:imageUris){
 				uploadService.mFileUploads.add(imageUri);
+				uploadService.mFileUploadsDetails.add(new String[2]);
 			}
 			mUploadButton.setText(String.format(getString(R.string.uploadphotos),uploadService.mFileUploads.size()));
 			for (Uri imageUri:imageUris){
 				if (handleSendImage(imageUri)){
 					break;
 				}
+				currentItem++;
 			}
 			return true;
 		}
@@ -701,12 +816,14 @@ public class SendShare extends Activity {
 			}
 			for (Uri videoUri:videoUris){
 				uploadService.mFileUploads.add(videoUri);
+				uploadService.mFileUploadsDetails.add(new String[2]);
 			}
 			mUploadButton.setText(String.format(getString(R.string.uploadvideos),uploadService.mFileUploads.size()));
 			for (Uri videoUri:videoUris){
 				if (handleSendVideo(videoUri)){
 					break;
 				}
+				currentItem++;
 			}
 			return true;
 		}
@@ -726,8 +843,10 @@ public class SendShare extends Activity {
 				String extension = MimeTypeMap.getFileExtensionFromUrl(Utils.getPathFromUri(fileUri)).toLowerCase();
 				if (Utils.IMG_EXT.contains(extension)){
 					uploadService.mFileUploads.add(fileUri);
+					uploadService.mFileUploadsDetails.add(new String[2]);
 				} else if (Utils.VID_EXT.contains(extension)){
 					uploadService.mFileUploads.add(fileUri);
+					uploadService.mFileUploadsDetails.add(new String[2]);
 				}
 			}
 			mUploadButton.setText(String.format(getString(R.string.uploadfiles),uploadService.mFileUploads.size()));
@@ -742,6 +861,7 @@ public class SendShare extends Activity {
 						break;
 					}
 				}
+				currentItem++;
 			}
 			return true;
 		}
@@ -752,13 +872,20 @@ public class SendShare extends Activity {
 
 	boolean setImage(Uri imageUri){
 		try {
+			mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+			System.gc();
 			mPreview.setImageURI(imageUri);
+			mPreviewNotAvailable.setVisibility(View.GONE);
 			return true;
 		} catch (Exception e){
 			mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+			mPreviewNotAvailable.setText(getString(R.string.preview_not_available)+"\r\n"+Utils.getPathFromUri(imageUri));
+			mPreviewNotAvailable.setVisibility(View.VISIBLE);
 			e.printStackTrace();
 		} catch (OutOfMemoryError e){
 			mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+			mPreviewNotAvailable.setText(getString(R.string.preview_not_available)+"\r\n"+Utils.getPathFromUri(imageUri));
+			mPreviewNotAvailable.setVisibility(View.VISIBLE);
 			e.printStackTrace();
 		}
 		return false;
@@ -771,26 +898,40 @@ public class SendShare extends Activity {
 				int duration = mp.getDuration();
 				mp.release();
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
+					mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+					System.gc();
 					MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
 					mediaMetadataRetriever.setDataSource(this, videoUri);
 					mPreview.setImageBitmap(mediaMetadataRetriever.getFrameAtTime(duration / 2, MediaMetadataRetriever.OPTION_CLOSEST));
 					mediaMetadataRetriever.release();
+					mPreviewNotAvailable.setVisibility(View.GONE);
+				} else {
+					mPreviewNotAvailable.setText(getString(R.string.preview_not_available)+"\r\n"+Utils.getPathFromUri(videoUri));
+					mPreviewNotAvailable.setVisibility(View.VISIBLE);
 				}
 			} else {
 				mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+				mPreviewNotAvailable.setText(getString(R.string.preview_not_available)+"\r\n"+Utils.getPathFromUri(videoUri));
+				mPreviewNotAvailable.setVisibility(View.VISIBLE);
 			}
 			return true;
 		} catch (Exception e){
 			mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+			mPreviewNotAvailable.setText(getString(R.string.preview_not_available)+"\r\n"+Utils.getPathFromUri(videoUri));
+			mPreviewNotAvailable.setVisibility(View.VISIBLE);
 			e.printStackTrace();
 		} catch (OutOfMemoryError e){
 			mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+			mPreviewNotAvailable.setText(getString(R.string.preview_not_available)+"\r\n"+Utils.getPathFromUri(videoUri));
+			mPreviewNotAvailable.setVisibility(View.VISIBLE);
 			e.printStackTrace();
 		}
 		return false;
 	}
 
 	void setThumbUrl(Bitmap thumb){
+		mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+		System.gc();
 		mPreview.setImageBitmap(thumb);
 	}
 
@@ -809,5 +950,92 @@ public class SendShare extends Activity {
 			}
 		}
 		return filename.toString();
+	}
+
+	void titleChanged(String newText){
+		UploadService uploadService = AndroidCPG.getUploadService();
+		if (uploadService == null){
+			return;
+		}
+		if (currentItem < 0 || currentItem >= uploadService.mFileUploadsDetails.size()){
+			if (uploadService.mRemoteVideoUploadDetails != null){
+				String[] changedItem = uploadService.mRemoteVideoUploadDetails;
+				changedItem[0] = newText;
+				uploadService.mRemoteVideoUploadDetails = changedItem;
+			}
+			return;
+		}
+		String[] changedItem = uploadService.mFileUploadsDetails.get(currentItem);
+		changedItem[0] = newText;
+		uploadService.mFileUploadsDetails.set(currentItem, changedItem);
+	}
+
+	void captionChanged(String newText){
+		UploadService uploadService = AndroidCPG.getUploadService();
+		if (uploadService == null){
+			return;
+		}
+		if (currentItem < 0 || currentItem >= uploadService.mFileUploadsDetails.size()){
+			if (uploadService.mRemoteVideoUploadDetails != null){
+				String[] changedItem = uploadService.mRemoteVideoUploadDetails;
+				changedItem[1] = newText;
+				uploadService.mRemoteVideoUploadDetails = changedItem;
+			}
+			return;
+		}
+		String[] changedItem = uploadService.mFileUploadsDetails.get(currentItem);
+		changedItem[1] = newText;
+		uploadService.mFileUploadsDetails.set(currentItem, changedItem);
+	}
+
+	void setItemDetails(){
+		UploadService uploadService = AndroidCPG.getUploadService();
+		if (uploadService == null){
+			return;
+		}
+		if (uploadService.mFileUploadsDetails.size() <= 1){
+			mNextItemButton.setVisibility(View.GONE);
+			mPrevItemButton.setVisibility(View.GONE);
+		} else {
+			if (currentItem >= uploadService.mFileUploadsDetails.size()-1){
+				mNextItemButton.setVisibility(View.GONE);
+			} else{
+				mNextItemButton.setVisibility(View.VISIBLE);
+			}
+			if (currentItem == 0 ){
+				mPrevItemButton.setVisibility(View.GONE);
+			} else {
+				mPrevItemButton.setVisibility(View.VISIBLE);
+			}
+		}
+		
+		if (uploadService.mFileUploadsDetails.size() >= 1){
+			//it is supposed to be in file upload mode
+			if (currentItem >= 0 && currentItem < uploadService.mFileUploadsDetails.size()){
+				String[] item = uploadService.mFileUploadsDetails.get(currentItem);
+				mTitleTextView.setText(item[0]);
+				mCaptionTextView.setText(item[1]);
+				//In case that there are several files we need also to update the preview
+				if (uploadService.mFileUploadsDetails.size() > 1){
+					Uri fileUri = uploadService.mFileUploads.get(currentItem);
+					String extension = MimeTypeMap.getFileExtensionFromUrl(Utils.getPathFromUri(fileUri)).toLowerCase();
+					if (Utils.IMG_EXT.contains(extension)){
+						setImage(fileUri);
+					} else if (Utils.VID_EXT.contains(extension)){
+						setVideo(fileUri);
+					} else {
+						mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+						mPreviewNotAvailable.setText(getString(R.string.preview_not_available)+"\r\n"+Utils.getPathFromUri(fileUri));
+						mPreviewNotAvailable.setVisibility(View.VISIBLE);
+					}
+				}
+			}
+		} else {
+			//it is supposed to be a remote video upload
+			if (uploadService.mRemoteVideoUploadDetails != null){
+				mTitleTextView.setText(uploadService.mRemoteVideoUploadDetails[0]);
+				mCaptionTextView.setText(uploadService.mRemoteVideoUploadDetails[1]);
+			}
+		}
 	}
 }

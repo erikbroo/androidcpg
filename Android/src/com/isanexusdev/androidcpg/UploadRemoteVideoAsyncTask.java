@@ -96,6 +96,22 @@ public class UploadRemoteVideoAsyncTask extends AsyncTask<String, Integer, Integ
 			dos.writeBytes("Content-Disposition: form-data; name=\"event\""+ lineEnd + "" + lineEnd+ "picture");
 			dos.writeBytes(lineEnd);
 			dos.writeBytes(twoHyphens + boundary + lineEnd);
+			if (params[4] != null){
+				String title = params[4].trim();
+				if (title.length() > 0){
+					dos.writeBytes("Content-Disposition: form-data; name=\"title\""+ lineEnd + "" + lineEnd+ title);
+					dos.writeBytes(lineEnd);
+					dos.writeBytes(twoHyphens + boundary + lineEnd);
+				}
+			}
+			if (params[5] != null){
+				String caption = params[5].trim();
+				if (caption.length() > 0){
+					dos.writeBytes("Content-Disposition: form-data; name=\"caption\""+ lineEnd + "" + lineEnd+ caption);
+					dos.writeBytes(lineEnd);
+					dos.writeBytes(twoHyphens + boundary + lineEnd);
+				}
+			}
 			dos.writeBytes("Content-Disposition: form-data; name=\"uploader\""+ lineEnd + "" + lineEnd+ "android");
 			dos.writeBytes(lineEnd);
 			dos.writeBytes(twoHyphens + boundary + lineEnd);

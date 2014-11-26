@@ -67,14 +67,14 @@ public class Utils {
 		fetchAlbumsAsyncTask.execute();
 	}
 
-	public static void uploadFile(String albumId, String fileName, UploadFileAsyncTask.UploadFileListener listener){
+	public static void uploadFile(String albumId, String fileName, String title, String caption, UploadFileAsyncTask.UploadFileListener listener){
 		UploadFileAsyncTask uploadFileAsyncTask = new UploadFileAsyncTask(listener);
-		uploadFileAsyncTask.execute(albumId,fileName);
+		uploadFileAsyncTask.execute(albumId,fileName, title, caption);
 	}
 
-	public static void uploadRemoteVideo(String albumId, String videoName, String videoUrl, String videoId, UploadRemoteVideoAsyncTask.UploadRemoteVideoListener listener){
+	public static void uploadRemoteVideo(String albumId, String videoName, String videoUrl, String videoId, String title, String caption,  UploadRemoteVideoAsyncTask.UploadRemoteVideoListener listener){
 		UploadRemoteVideoAsyncTask uploadRemoteVideoAsyncTask = new UploadRemoteVideoAsyncTask(listener);
-		uploadRemoteVideoAsyncTask.execute(albumId,videoName, videoUrl, videoId);
+		uploadRemoteVideoAsyncTask.execute(albumId,videoName, videoUrl, videoId, title, caption);
 	}
 
 	public static void getYoutubeThumb(String id, GetYoutubeVideoThumbAsyncTask.GetYoutubeVideoThumbListener listener){

@@ -48,4 +48,12 @@
     <string name="webview_copy_button">Copiar Texto</string>
     
     <string name="action_show_result">Ver Resultado</string>
+    
+    <string name="image_title">Título de la imagen</string>
+    <string name="image_caption">Descripción de la imagen</string>
+    
+    <string name="next_item">Siguiente</string>
+    <string name="prev_item">Previo</string>
+    
+    <string name="preview_not_available">Previsualización no disponible</string>
 </resources>
