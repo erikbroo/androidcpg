@@ -60,7 +60,7 @@ public class SendShare extends Activity {
 	private int mCatId = 0;
 	int loginAtteps = 0;
 
-	int currentItem = 0;
+	int mCurrentItem = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -80,15 +80,15 @@ public class SendShare extends Activity {
 		mNextItemButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				currentItem++;
-				setItemDetails();				
+				mCurrentItem++;
+				setItemDetails(mCurrentItem);				
 			}
 		});
 		mPrevItemButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				currentItem--;
-				setItemDetails();				
+				mCurrentItem--;
+				setItemDetails(mCurrentItem);				
 			}
 		});
 		mTitleTextView.addTextChangedListener(new TextWatcher()
@@ -172,7 +172,7 @@ public class SendShare extends Activity {
 
 	void continueOnCreate(String action,  String type, Intent intent){
 		boolean handled = false;
-		currentItem = 0;
+		mCurrentItem = 0;
 		if (Intent.ACTION_SEND.equals(action) && type != null) {
 			if (type.startsWith("image/") || type.startsWith("video/")) {
 				handled = handleSend(intent);
@@ -224,7 +224,7 @@ public class SendShare extends Activity {
 		mCaptionTextView.setEnabled(false);
 		mNextItemButton.setEnabled(false);
 		mPrevItemButton.setEnabled(false);
-		setItemDetails();
+		setItemDetails(mCurrentItem);
 		UploadService uploadService = AndroidCPG.getUploadService();
 		if (!handled && uploadService.mFileUploads.size() == 0) {
 			mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
@@ -798,7 +798,7 @@ public class SendShare extends Activity {
 				if (handleSendImage(imageUri)){
 					break;
 				}
-				currentItem++;
+				mCurrentItem++;
 			}
 			return true;
 		}
@@ -823,7 +823,7 @@ public class SendShare extends Activity {
 				if (handleSendVideo(videoUri)){
 					break;
 				}
-				currentItem++;
+				mCurrentItem++;
 			}
 			return true;
 		}
@@ -861,7 +861,7 @@ public class SendShare extends Activity {
 						break;
 					}
 				}
-				currentItem++;
+				mCurrentItem++;
 			}
 			return true;
 		}
@@ -957,7 +957,7 @@ public class SendShare extends Activity {
 		if (uploadService == null){
 			return;
 		}
-		if (currentItem < 0 || currentItem >= uploadService.mFileUploadsDetails.size()){
+		if (mCurrentItem < 0 || mCurrentItem >= uploadService.mFileUploadsDetails.size()){
 			if (uploadService.mRemoteVideoUploadDetails != null){
 				String[] changedItem = uploadService.mRemoteVideoUploadDetails;
 				changedItem[0] = newText;
@@ -965,9 +965,9 @@ public class SendShare extends Activity {
 			}
 			return;
 		}
-		String[] changedItem = uploadService.mFileUploadsDetails.get(currentItem);
+		String[] changedItem = uploadService.mFileUploadsDetails.get(mCurrentItem);
 		changedItem[0] = newText;
-		uploadService.mFileUploadsDetails.set(currentItem, changedItem);
+		uploadService.mFileUploadsDetails.set(mCurrentItem, changedItem);
 	}
 
 	void captionChanged(String newText){
@@ -975,7 +975,7 @@ public class SendShare extends Activity {
 		if (uploadService == null){
 			return;
 		}
-		if (currentItem < 0 || currentItem >= uploadService.mFileUploadsDetails.size()){
+		if (mCurrentItem < 0 || mCurrentItem >= uploadService.mFileUploadsDetails.size()){
 			if (uploadService.mRemoteVideoUploadDetails != null){
 				String[] changedItem = uploadService.mRemoteVideoUploadDetails;
 				changedItem[1] = newText;
@@ -983,12 +983,12 @@ public class SendShare extends Activity {
 			}
 			return;
 		}
-		String[] changedItem = uploadService.mFileUploadsDetails.get(currentItem);
+		String[] changedItem = uploadService.mFileUploadsDetails.get(mCurrentItem);
 		changedItem[1] = newText;
-		uploadService.mFileUploadsDetails.set(currentItem, changedItem);
+		uploadService.mFileUploadsDetails.set(mCurrentItem, changedItem);
 	}
 
-	void setItemDetails(){
+	public void setItemDetails(int currentItem){
 		UploadService uploadService = AndroidCPG.getUploadService();
 		if (uploadService == null){
 			return;
@@ -1015,19 +1015,17 @@ public class SendShare extends Activity {
 				String[] item = uploadService.mFileUploadsDetails.get(currentItem);
 				mTitleTextView.setText(item[0]);
 				mCaptionTextView.setText(item[1]);
-				//In case that there are several files we need also to update the preview
-				if (uploadService.mFileUploadsDetails.size() > 1){
-					Uri fileUri = uploadService.mFileUploads.get(currentItem);
-					String extension = MimeTypeMap.getFileExtensionFromUrl(Utils.getPathFromUri(fileUri)).toLowerCase();
-					if (Utils.IMG_EXT.contains(extension)){
-						setImage(fileUri);
-					} else if (Utils.VID_EXT.contains(extension)){
-						setVideo(fileUri);
-					} else {
-						mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
-						mPreviewNotAvailable.setText(getString(R.string.preview_not_available)+"\r\n"+Utils.getPathFromUri(fileUri));
-						mPreviewNotAvailable.setVisibility(View.VISIBLE);
-					}
+				
+				Uri fileUri = uploadService.mFileUploads.get(currentItem);
+				String extension = MimeTypeMap.getFileExtensionFromUrl(Utils.getPathFromUri(fileUri)).toLowerCase();
+				if (Utils.IMG_EXT.contains(extension)){
+					setImage(fileUri);
+				} else if (Utils.VID_EXT.contains(extension)){
+					setVideo(fileUri);
+				} else {
+					mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+					mPreviewNotAvailable.setText(getString(R.string.preview_not_available)+"\r\n"+Utils.getPathFromUri(fileUri));
+					mPreviewNotAvailable.setVisibility(View.VISIBLE);
 				}
 			}
 		} else {

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -13,9 +14,9 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 public class UploadService extends Service {
@@ -200,13 +201,8 @@ public class UploadService extends Service {
 			if (sendShareActivity != null) {
 				sendShareActivity.mUploadprogress.setVisibility(View.VISIBLE);
 				sendShareActivity.mUploadprogress.setProgress(0);
-				String extension = MimeTypeMap.getFileExtensionFromUrl(filePath).toLowerCase();
-				if (Utils.IMG_EXT.contains(extension)) {
-					sendShareActivity.setImage(currentUri);
-				} else if (Utils.VID_EXT.contains(extension)) {
-					sendShareActivity.setVideo(currentUri);
-				} else {
-					sendShareActivity.mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
+				if (mCurrentFileIndex >= 0 && mCurrentFileIndex < mFileUploadsDetails.size()){
+					sendShareActivity.setItemDetails(mCurrentFileIndex);
 				}
 			}
 
@@ -333,50 +329,48 @@ public class UploadService extends Service {
 
 	private void postNotification(int notificationId, String title, String text, String ticker, boolean service, int progress) {
 		Context context = AndroidCPG.getAppContext();
-		try{
-			Intent intent = new Intent(context, SendShare.class);
+		try {
+			Intent intent = new Intent(this, SendShare.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			PendingIntent contentIntent = PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-
-			@SuppressWarnings("static-access")
-
-			NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-			builder.setContentTitle(title);
-			builder.setContentText(text);
-			if(ticker.length() > 0)
-				builder.setTicker(ticker);
-			builder.setSmallIcon(R.drawable.ic_launcher);
-			builder.setContentIntent(contentIntent);
-			if (progress > 0) {
-				builder.setProgress(100, progress, false);
+			Notification notification = new Notification(R.drawable.ic_launcher, title, System.currentTimeMillis());
+			notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
+			if (progress > 0){
+				notification.contentIntent = contentIntent;
+				notification.contentView = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification_with_progress);
+				notification.contentView.setImageViewResource(R.id.notification_with_progress_icon, R.drawable.ic_launcher);
+				notification.contentView.setTextViewText(R.id.notification_with_progress_text, text);
+				notification.contentView.setTextViewText(R.id.notification_with_progress_percent, String.valueOf(progress)+"%");
+				notification.contentView.setProgressBar(R.id.notification_with_progress_bar, 100, progress, false);
+			} else {
+				notification.setLatestEventInfo(context, title, text, contentIntent);
 			}
-			builder.setOngoing(service);
-
-			startForeground(notificationId, builder.build());
+			if(ticker.length() > 0){
+				notification.tickerText= ticker;
+			}
+			NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+			notificationManager.notify(notificationId, notification);
 		} catch (Exception e){}
 	}
 
-	private void postFinishedNotification(int notificationId) {
+	void postFinishedNotification(int notificationId) {
 		if (mFileUploads.size() == 0 || mCurrentFileIndex == 0){
 			return;
 		}
-		try{
-			String text = String.format(getString(R.string.finishednotificationdetails), mFileUploads.size(), mFileUploadsSuccess.size(), mFileUploadsFailed.size());
-			Context context = AndroidCPG.getAppContext();
-			PendingIntent contentIntent = PendingIntent.getActivity(context, notificationId, null, PendingIntent.FLAG_CANCEL_CURRENT);
+		Context context = AndroidCPG.getAppContext();
+		try {
+			String message = String.format(getString(R.string.finishednotificationdetails), mFileUploads.size(), mFileUploadsSuccess.size(), mFileUploadsFailed.size());
+			String title = getString(R.string.finisheduploading);
 
-			@SuppressWarnings("static-access")
-
-			NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-			builder.setContentTitle(getString(R.string.finisheduploading));
-			builder.setContentText(text);
-			builder.setTicker(getString(R.string.finisheduploading));
-			builder.setSmallIcon(R.drawable.ic_launcher);
-			builder.setContentIntent(contentIntent);
-			builder.setOngoing(true);
-
-			NotificationManager nm = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
-			nm.notify(notificationId, builder.build());
+			Intent intent = new Intent(this, SendShare.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			PendingIntent contentIntent = PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			Notification notification = new Notification(R.drawable.ic_launcher, title, System.currentTimeMillis());
+			notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
+			notification.setLatestEventInfo(context, title, message, contentIntent);
+			notification.tickerText= getString(R.string.finisheduploading);
+			NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+			notificationManager.notify(notificationId, notification);
 		} catch (Exception e){}
 	}
 }
