@@ -91,10 +91,18 @@ public class UploadFileAsyncTask extends AsyncTask<String, Integer, Integer> {
 			dos.writeBytes("Content-Disposition: form-data; name=\"album\""+ lineEnd + "" + lineEnd+ params[0]);
 			dos.writeBytes(lineEnd);
 			dos.writeBytes(twoHyphens + boundary + lineEnd);
-			dos.writeBytes("Content-Disposition: form-data; name=\"title\""+ lineEnd + "" + lineEnd+ "");
+			String title = "";
+			if (params[2] != null){
+				title = params[2].trim();
+			}
+			dos.writeBytes("Content-Disposition: form-data; name=\"title\""+ lineEnd + "" + lineEnd+ title);
 			dos.writeBytes(lineEnd);
 			dos.writeBytes(twoHyphens + boundary + lineEnd);
-			dos.writeBytes("Content-Disposition: form-data; name=\"caption\""+ lineEnd + "" + lineEnd+ "");
+			String caption = "";
+			if (params[3] != null){
+				caption = params[3].trim();
+			}
+			dos.writeBytes("Content-Disposition: form-data; name=\"caption\""+ lineEnd + "" + lineEnd+ caption);
 			dos.writeBytes(lineEnd);
 			dos.writeBytes(twoHyphens + boundary + lineEnd);
 			dos.writeBytes("Content-Disposition: form-data; name=\"keywords\""+ lineEnd + "" + lineEnd+ "" );
@@ -103,22 +111,6 @@ public class UploadFileAsyncTask extends AsyncTask<String, Integer, Integer> {
 			dos.writeBytes("Content-Disposition: form-data; name=\"event\""+ lineEnd + "" + lineEnd+ "picture");
 			dos.writeBytes(lineEnd);
 			dos.writeBytes(twoHyphens + boundary + lineEnd);
-			if (params[2] != null){
-				String title = params[2].trim();
-				if (title.length() > 0){
-					dos.writeBytes("Content-Disposition: form-data; name=\"title\""+ lineEnd + "" + lineEnd+ title);
-					dos.writeBytes(lineEnd);
-					dos.writeBytes(twoHyphens + boundary + lineEnd);
-				}
-			}
-			if (params[3] != null){
-				String caption = params[3].trim();
-				if (caption.length() > 0){
-					dos.writeBytes("Content-Disposition: form-data; name=\"caption\""+ lineEnd + "" + lineEnd+ caption);
-					dos.writeBytes(lineEnd);
-					dos.writeBytes(twoHyphens + boundary + lineEnd);
-				}
-			}
 			dos.writeBytes("Content-Disposition: form-data; name=\"uploader\""+ lineEnd + "" + lineEnd+ "android");
 			dos.writeBytes(lineEnd);
 			dos.writeBytes(twoHyphens + boundary + lineEnd);
