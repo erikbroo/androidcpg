@@ -15,6 +15,8 @@
     <string name="title_activity_send_share">AndroidCPG</string>
     <string name="successuploading">%s uploaded correctly</string>
     <string name="faileduploading">%s failed uploading</string>
+    <string name="successuploading_title">Uploaded correctly</string>
+    <string name="faileduploading_title">Failed uploading</string>
     <string name="successaddingalbum">Album added successfully</string>
     <string name="failedaddingalbum">Failed adding album</string>
     <string name="addnewalbum">Album name</string>
@@ -35,7 +37,7 @@
     <string name="uploadprogressnotification">%1$s - %2$d%% uploaded</string>
     <string name="nouploads">Nothing to upload.</string>
     <string name="finisheduploading">Done uploading!</string>
-    <string name="finishednotificationdetails">Total files to upload: %1$d\r\nSuccess: %2$d\r\nFailed: %3$d\r\n</string>
+    <string name="finishednotificationdetails">Files: %1$d, Success: %2$d, Failed: %3$d</string>
     <string name="optionmenudeletecredentials">Delete Credentials</string>
     <string name="optionmenusettings">Preferences</string>
     <string name="optionmenuclose">Exit</string>
@@ -56,5 +58,8 @@
     <string name="prev_item">Previous item</string>
     
     <string name="preview_not_available">Preview not available</string>
+    
+    <string name="title_activity_result">Uploads Result</string>
+    <string name="no_upload_info">No result info.</string>
 </resources>
 

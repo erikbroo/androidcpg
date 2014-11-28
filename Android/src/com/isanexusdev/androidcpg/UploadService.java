@@ -4,18 +4,21 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -30,6 +33,7 @@ public class UploadService extends Service {
 	public String mRemoteVideoUpload = new String();
 	public String mRemoteVideoUploadName = new String();
 	public String[] mRemoteVideoUploadDetails = null;
+	public int mRemoteVideoUploadResult = 0;
 	public List<Uri> mFileUploads = new ArrayList<Uri>();
 	public List<String[]> mFileUploadsDetails = new ArrayList<String[]>();
 	public List<Uri> mFileUploadsFailed = new ArrayList<Uri>();
@@ -43,9 +47,9 @@ public class UploadService extends Service {
 
 	@Override
 	public void onCreate() {
-
+		
 	}
-
+	
 	@Override
 	public void onDestroy() {
 		AndroidCPG.setUploadService(null);
@@ -104,6 +108,7 @@ public class UploadService extends Service {
 				sendShareActivity.finish();
 			}
 			if (mCurrentFileIndex > 0) {
+				saveLastUpload();
 				postFinishedNotification(123456432);
 			}
 
@@ -125,6 +130,7 @@ public class UploadService extends Service {
 				public void result(final int result) {
 					final SendShare sendShareActivity = AndroidCPG.getSendShareActivity();
 					lastProgressUpdateTime = 0;
+					mRemoteVideoUploadResult = result;
 					if (sendShareActivity != null) {
 						sendShareActivity.runOnUiThread(new Runnable() {
 							@Override
@@ -354,15 +360,20 @@ public class UploadService extends Service {
 	}
 
 	void postFinishedNotification(int notificationId) {
-		if (mFileUploads.size() == 0 || mCurrentFileIndex == 0){
+		if ((mFileUploads.size() == 0  && mRemoteVideoUploadName.length() == 0) || mCurrentFileIndex == 0){
 			return;
 		}
 		Context context = AndroidCPG.getAppContext();
 		try {
-			String message = String.format(getString(R.string.finishednotificationdetails), mFileUploads.size(), mFileUploadsSuccess.size(), mFileUploadsFailed.size());
+			String message = "";
+			if (mRemoteVideoUploadName.length() == 0){
+				message = String.format(getString(R.string.finishednotificationdetails), mFileUploads.size(), mFileUploadsSuccess.size(), mFileUploadsFailed.size());
+			} else {
+				message = String.format(getString(R.string.finishednotificationdetails), 1, (mRemoteVideoUploadResult == 1 ? 1:0), (mRemoteVideoUploadResult == 1 ? 0:1));
+			}
 			String title = getString(R.string.finisheduploading);
 
-			Intent intent = new Intent(this, SendShare.class);
+			Intent intent = new Intent(this, ResultsActivity.class);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			PendingIntent contentIntent = PendingIntent.getActivity(context, notificationId, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			Notification notification = new Notification(R.drawable.ic_launcher, title, System.currentTimeMillis());
@@ -372,5 +383,38 @@ public class UploadService extends Service {
 			NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 			notificationManager.notify(notificationId, notification);
 		} catch (Exception e){}
+	}
+	
+	void saveLastUpload(){
+		Editor settings = AndroidCPG.getSharedPreferences().edit();
+		settings.remove("lastUploads");
+		settings.commit();
+		JSONObject uploads = new JSONObject();
+		JSONArray successUploadsArray = new JSONArray();
+		JSONArray failedUploadsArray = new JSONArray();
+		if (mFileUploads.size() > 0){
+			for (Uri fileUploadSuccess: mFileUploadsSuccess){
+				successUploadsArray.put(Utils.getPathFromUri(fileUploadSuccess));
+			}
+			for (Uri fileUploadFailed: mFileUploadsFailed){
+				failedUploadsArray.put(Utils.getPathFromUri(fileUploadFailed));
+			}
+		} else {
+			if (mRemoteVideoUploadResult == 1){
+				successUploadsArray.put(mRemoteVideoUploadName);
+			} else {
+				failedUploadsArray.put(mRemoteVideoUploadName);
+			}
+		}
+		try {
+			uploads.put("successUploadsArray", successUploadsArray);
+			uploads.put("failedUploadsArray", failedUploadsArray);
+			uploads.put("time", System.currentTimeMillis());
+		} catch (Exception e) {
+			return;
+		}
+		
+		settings.putString("lastUploads", uploads.toString());
+		settings.commit();
 	}
 }
