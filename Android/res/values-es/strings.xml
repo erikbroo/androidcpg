@@ -9,6 +9,7 @@
     <string name="uploadphotos">Subir %d Fotos</string>
     <string name="uploadvideo">Subir Video</string>
     <string name="uploadyoutube">Subir Video Youtube</string>
+    <string name="uploadvimeo">Subir Video Vimeo</string>
     <string name="uploadvideos">Subir %d Videos</string>
     <string name="uploadfiles">Subir %d Ficheros</string>
     <string name="newalbum">Crear album nuevo</string>

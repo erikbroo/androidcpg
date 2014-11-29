@@ -47,9 +47,9 @@ public class UploadService extends Service {
 
 	@Override
 	public void onCreate() {
-		
+
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		AndroidCPG.setUploadService(null);
@@ -79,27 +79,48 @@ public class UploadService extends Service {
 		return true;
 	}
 
-	public void setVideoThumb(String id){
+	public void setYoutubeVideoDetails(String id){
 		if (id == null || id.length() == 0){
 			return;
 		}
 
-		Utils.getYoutubeThumb(id, new GetYoutubeVideoThumbAsyncTask.GetYoutubeVideoThumbListener() {
+		Utils.getYoutubeVideoDetails(id, new GetYoutubeVideoDetailsAsyncTask.GetYoutubeVideoDetailsListener() {
 			@Override
-			public void result(final Bitmap thumb) {
+			public void result(final Bitmap thumb, final String title, final String description) {
 				final SendShare sendShareActivity = AndroidCPG.getSendShareActivity();
 				if (sendShareActivity != null) {
 					sendShareActivity.runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							sendShareActivity.setThumbUrl(thumb);
+							sendShareActivity.setDetailsFromRemoterUrl(thumb,title,description);
 						}
 					});
 				}
 			}
 		});
-
 	}
+
+	public void setVimeoVideoDetails(String id){
+		if (id == null || id.length() == 0){
+			return;
+		}
+
+		Utils.getVimeoVideoDetails(id, new GetVimeoVideoDetailsAsyncTask.GetVimeoVideoDetailsListener() {
+			@Override
+			public void result(final Bitmap thumb, final String title, final String description) {
+				final SendShare sendShareActivity = AndroidCPG.getSendShareActivity();
+				if (sendShareActivity != null) {
+					sendShareActivity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							sendShareActivity.setDetailsFromRemoterUrl(thumb,title,description);
+						}
+					});
+				}
+			}
+		});
+	}
+
 	void uploadNextFile() {
 		isUploading = true;
 		SendShare sendShareActivity = AndroidCPG.getSendShareActivity();
@@ -384,7 +405,7 @@ public class UploadService extends Service {
 			notificationManager.notify(notificationId, notification);
 		} catch (Exception e){}
 	}
-	
+
 	void saveLastUpload(){
 		Editor settings = AndroidCPG.getSharedPreferences().edit();
 		settings.remove("lastUploads");
@@ -406,6 +427,7 @@ public class UploadService extends Service {
 				failedUploadsArray.put(mRemoteVideoUploadName);
 			}
 		}
+
 		try {
 			uploads.put("successUploadsArray", successUploadsArray);
 			uploads.put("failedUploadsArray", failedUploadsArray);
@@ -413,7 +435,7 @@ public class UploadService extends Service {
 		} catch (Exception e) {
 			return;
 		}
-		
+
 		settings.putString("lastUploads", uploads.toString());
 		settings.commit();
 	}

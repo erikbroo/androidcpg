@@ -16,18 +16,20 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.AsyncTask;
 
-public class GetYoutubeVideoThumbAsyncTask extends AsyncTask<String, Integer, Bitmap> {
-	private static final String TAG = GetYoutubeVideoThumbAsyncTask.class.getName();
+public class GetVimeoVideoDetailsAsyncTask extends AsyncTask<String, Integer, Bitmap> {
+	private static final String TAG = GetVimeoVideoDetailsAsyncTask.class.getName();
 	URL connectURL;
 	boolean success;
-	private GetYoutubeVideoThumbListener mListener = null;
-	public static interface GetYoutubeVideoThumbListener {
-		public void result(Bitmap thumb);
+	String mTitle = "";
+	String mDescription = "";
+	private GetVimeoVideoDetailsListener mListener = null;
+	public static interface GetVimeoVideoDetailsListener {
+		public void result(Bitmap thumb, String title, String description);
 	}
-	public GetYoutubeVideoThumbAsyncTask(String id, GetYoutubeVideoThumbListener listener){
+	public GetVimeoVideoDetailsAsyncTask(String id, GetVimeoVideoDetailsListener listener){
 		mListener = listener;
 		try{
-			connectURL = new URL("http://gdata.youtube.com/feeds/api/videos/"+id+"?v=2&alt=json");
+			connectURL = new URL("https://vimeo.com/api/v2/video/"+id+".json");
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
@@ -37,7 +39,7 @@ public class GetYoutubeVideoThumbAsyncTask extends AsyncTask<String, Integer, Bi
 	protected void onCancelled() {
 		if (mListener != null){
 			try {
-				mListener.result(null);
+				mListener.result(null,null,null);
 			} catch (Exception e) {}
 		}
 	}
@@ -46,7 +48,7 @@ public class GetYoutubeVideoThumbAsyncTask extends AsyncTask<String, Integer, Bi
 	protected void onPostExecute(Bitmap result) {
 		if (mListener != null){
 			try {
-				mListener.result(result);
+				mListener.result(result, mTitle, mDescription);
 			} catch (Exception e) {}
 		}
 	}
@@ -102,35 +104,16 @@ public class GetYoutubeVideoThumbAsyncTask extends AsyncTask<String, Integer, Bi
 
 		if (success && encryptedResponse != null){
 			try {
-				String thumbUrl = "";
-				JSONObject jObject = new JSONObject(encryptedResponse);
-				jObject = jObject.getJSONObject("entry");
-				try{
-					jObject = jObject.getJSONObject("media$group");
-				} catch (Exception e){}
-				JSONArray thumbArray = jObject.getJSONArray("media$thumbnail");
-				int bestWidth = 0;
-				for (int i = 0; i < thumbArray.length(); i++){
-					try {
-						JSONObject thumb = thumbArray.getJSONObject(i);
-						if (!thumb.has("url") || !thumb.has("width")){
-							continue;
-						}
-						int width = thumb.getInt("width");
-						if (width <= 0){
-							continue;
-						}
-						if (bestWidth < 128){
-							bestWidth = width;
-							thumbUrl = thumb.getString("url");
-						} else if (bestWidth > width && width > 128){
-							bestWidth = width;
-							thumbUrl = thumb.getString("url");
-						}
-					} catch (Exception e){}
+				JSONObject jObject = null;
+				try {
+					jObject = new JSONObject(encryptedResponse);	
+				} catch (Exception e) {
+					jObject = (new JSONArray(encryptedResponse)).getJSONObject(0);
 				}
+				mTitle = jObject.getString("title");
+				mDescription = jObject.getString("description");
+				String thumbUrl = jObject.getString("thumbnail_medium");
 				if (thumbUrl.length() > 0){
-
 					try {
 						URL thumbURL = new URL(thumbUrl);
 						URLConnection connURL = thumbURL.openConnection();

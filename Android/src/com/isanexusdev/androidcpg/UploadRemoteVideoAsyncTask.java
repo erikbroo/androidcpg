@@ -172,8 +172,14 @@ public class UploadRemoteVideoAsyncTask extends AsyncTask<String, Integer, Integ
 							}
 						}
 						if (videoId >= 0) {
-							GetYoutubeVideoThumbAsyncTask getYoutubeVideoThumbAsyncTask = new GetYoutubeVideoThumbAsyncTask(params[3], null);
-							Bitmap bm = getYoutubeVideoThumbAsyncTask.doInBackground();
+							Bitmap bm = null;
+							if (params[1].contains("youtube")){
+								GetYoutubeVideoDetailsAsyncTask getYoutubeVideoThumbAsyncTask = new GetYoutubeVideoDetailsAsyncTask(params[3], null);
+								bm = getYoutubeVideoThumbAsyncTask.doInBackground();
+							} else if (params[1].contains("vimeo")){
+								GetVimeoVideoDetailsAsyncTask getVimeoVideoThumbAsyncTask = new GetVimeoVideoDetailsAsyncTask(params[3], null);
+								bm = getVimeoVideoThumbAsyncTask.doInBackground();
+							}
 							if (bm != null) {
 								UploadCustomThumbAsyncTask uploadCustomThumbAsyncTask = new UploadCustomThumbAsyncTask(videoId, bm, null);
 								uploadCustomThumbAsyncTask.doInBackground(params[1]);

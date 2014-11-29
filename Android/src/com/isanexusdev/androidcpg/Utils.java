@@ -77,9 +77,14 @@ public class Utils {
 		uploadRemoteVideoAsyncTask.execute(albumId,videoName, videoUrl, videoId, title, caption);
 	}
 
-	public static void getYoutubeThumb(String id, GetYoutubeVideoThumbAsyncTask.GetYoutubeVideoThumbListener listener){
-		GetYoutubeVideoThumbAsyncTask getYoutubeVideoDetails = new GetYoutubeVideoThumbAsyncTask(id, listener);
+	public static void getYoutubeVideoDetails(String id, GetYoutubeVideoDetailsAsyncTask.GetYoutubeVideoDetailsListener listener){
+		GetYoutubeVideoDetailsAsyncTask getYoutubeVideoDetails = new GetYoutubeVideoDetailsAsyncTask(id, listener);
 		getYoutubeVideoDetails.execute();
+	}
+
+	public static void getVimeoVideoDetails(String id, GetVimeoVideoDetailsAsyncTask.GetVimeoVideoDetailsListener listener){
+		GetVimeoVideoDetailsAsyncTask getVimeoVideoDetails = new GetVimeoVideoDetailsAsyncTask(id, listener);
+		getVimeoVideoDetails.execute();
 	}
 
 	public static void createAlbum(String albumName, String catId, String catPos, CreateAlbumAsyncTask.CreateAlbumListener listener){
@@ -142,6 +147,20 @@ public class Utils {
 		return url;
 	}
 
+	public static String extractVimeoVideoId(String url){
+		url = url.trim();
+		String urlLC = url.toLowerCase();
+		int index = urlLC.indexOf(".com/");
+		if (index < 0 || index > url.length()) {
+			return "";
+		}
+		url = url.substring(index+5);
+		if (url.endsWith("/")){
+			url = url.substring(0, url.length() - 1);
+		}
+		return url;
+	}
+
 	public static boolean isVideo(String filename){
 		try {
 			String ext = filename.substring(filename.lastIndexOf(".")+1).toLowerCase();
@@ -150,14 +169,14 @@ public class Utils {
 
 		return false;
 	}
-	
+
 	public static String getStackTrace(Throwable t){
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw, true);
-        t.printStackTrace(pw);
-        pw.flush();
-        sw.flush();
-        return sw.toString();
-    }
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw, true);
+		t.printStackTrace(pw);
+		pw.flush();
+		sw.flush();
+		return sw.toString();
+	}
 
 }

@@ -181,31 +181,59 @@ public class SendShare extends Activity {
 					Bundle extras = intent.getExtras();
 					String value = extras.getString(Intent.EXTRA_TEXT);
 					String valueLC = value.toLowerCase();
-					if (value != null && (valueLC.contains("youtube") || valueLC.contains("youtu.be"))){
-						int index = valueLC.indexOf(": http://you");
-						if (index < 0 || index > valueLC.length()){
-							index = valueLC.indexOf(": https://you");
-						}
-						if (index < 0 || index > valueLC.length()){
-							index = valueLC.indexOf(": http://www.you");
-						}
-						if (index < 0 || index > valueLC.length()){
-							index = valueLC.indexOf(": https://www.you");
-						}
-						if (index >= 0 && index <= value.length()) {
-							handled = true;
-							UploadService uploadService = AndroidCPG.getUploadService();
-							uploadService.mRemoteVideoUploadName = buildValidName(value.substring(0,index))+".youtube";
-							uploadService.mRemoteVideoUpload = value.substring(index + 2);
-							uploadService.mRemoteVideoUploadDetails = new String[2];
-							uploadService.setVideoThumb(Utils.extractYoutubeVideoId(uploadService.mRemoteVideoUpload));
-							mUploadButton.setText(R.string.uploadyoutube);
-							mTitleTextView.setEnabled(true);
-							mCaptionTextView.setEnabled(true);
-							mNextItemButton.setEnabled(true);
-							mPrevItemButton.setEnabled(true);
-						} else {
-							handled = false;
+					if (value != null){
+						if (valueLC.contains("youtube") || valueLC.contains("youtu.be")){
+							int index = valueLC.indexOf(": http://you");
+							if (index < 0 || index > valueLC.length()){
+								index = valueLC.indexOf(": https://you");
+							}
+							if (index < 0 || index > valueLC.length()){
+								index = valueLC.indexOf(": http://www.you");
+							}
+							if (index < 0 || index > valueLC.length()){
+								index = valueLC.indexOf(": https://www.you");
+							}
+							if (index >= 0 && index <= value.length()) {
+								handled = true;
+								UploadService uploadService = AndroidCPG.getUploadService();
+								uploadService.mRemoteVideoUploadName = buildValidName(value.substring(0,index))+".youtube";
+								uploadService.mRemoteVideoUpload = value.substring(index + 2);
+								uploadService.mRemoteVideoUploadDetails = new String[2];
+								uploadService.setYoutubeVideoDetails(Utils.extractYoutubeVideoId(uploadService.mRemoteVideoUpload));
+								mUploadButton.setText(R.string.uploadyoutube);
+								mTitleTextView.setEnabled(true);
+								mCaptionTextView.setEnabled(true);
+								mNextItemButton.setEnabled(true);
+								mPrevItemButton.setEnabled(true);
+							} else {
+								handled = false;
+							}
+						} else if ( valueLC.contains("vimeo.com")){
+							String name = "";
+							String title = extras.getString(Intent.EXTRA_SUBJECT);
+							if (title != null && title.trim().length() > 0){
+								name = buildValidName(title)+".vimeo";
+							} else {
+								int index = valueLC.indexOf(".com/");
+								if (index >= 0 && index <= value.length()) {
+									name = buildValidName(valueLC.substring(index+5))+".vimeo";
+								}
+							}
+							if (name.length() > 0) {
+								handled = true;
+								UploadService uploadService = AndroidCPG.getUploadService();
+								uploadService.mRemoteVideoUploadName = name;
+								uploadService.mRemoteVideoUpload = value;
+								uploadService.mRemoteVideoUploadDetails = new String[2];
+								uploadService.setVimeoVideoDetails(Utils.extractVimeoVideoId(uploadService.mRemoteVideoUpload));
+								mUploadButton.setText(R.string.uploadvimeo);
+								mTitleTextView.setEnabled(true);
+								mCaptionTextView.setEnabled(true);
+								mNextItemButton.setEnabled(true);
+								mPrevItemButton.setEnabled(true);
+							} else {
+								handled = false;
+							}
 						}
 					}
 				} catch (Exception e){}
@@ -929,10 +957,22 @@ public class SendShare extends Activity {
 		return false;
 	}
 
-	void setThumbUrl(Bitmap thumb){
+	void setDetailsFromRemoterUrl(Bitmap thumb, String title, String description){
 		mPreview.setImageBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8));
 		System.gc();
 		mPreview.setImageBitmap(thumb);
+		String[] details = new String[2];
+		if (title != null && title.trim().length() > 0){
+			mTitleTextView.setText(title.trim());
+			details[0] = mTitleTextView.getText().toString();
+		}
+		
+		if (description != null && description.trim().length() > 0){
+			mCaptionTextView.setText(description.trim());
+			details[1] = mCaptionTextView.getText().toString();
+		}
+		
+		AndroidCPG.getUploadService().mRemoteVideoUploadDetails = details;
 	}
 
 	String buildValidName(String tittle){
@@ -1008,14 +1048,14 @@ public class SendShare extends Activity {
 				mPrevItemButton.setVisibility(View.VISIBLE);
 			}
 		}
-		
+
 		if (uploadService.mFileUploadsDetails.size() >= 1){
 			//it is supposed to be in file upload mode
 			if (currentItem >= 0 && currentItem < uploadService.mFileUploadsDetails.size()){
 				String[] item = uploadService.mFileUploadsDetails.get(currentItem);
 				mTitleTextView.setText(item[0]);
 				mCaptionTextView.setText(item[1]);
-				
+
 				Uri fileUri = uploadService.mFileUploads.get(currentItem);
 				String extension = MimeTypeMap.getFileExtensionFromUrl(Utils.getPathFromUri(fileUri)).toLowerCase();
 				if (Utils.IMG_EXT.contains(extension)){
