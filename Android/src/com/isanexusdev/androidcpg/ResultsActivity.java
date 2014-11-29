@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -20,6 +22,7 @@ public class ResultsActivity extends Activity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		((NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE)).cancel(123456432);
 		setContentView(R.layout.results_activity);
 		Button exit = (Button)findViewById(R.id.exit);
 		exit.setOnClickListener(new OnClickListener() {
@@ -79,8 +82,8 @@ public class ResultsActivity extends Activity{
 			failedUploads = new String[0];
 		}
 		
-		successUploadsView.setAdapter(new ArrayAdapter<String> (this, android.R.layout.simple_list_item_1, android.R.id.text1, successUploads));
-		failedUploadsView.setAdapter(new ArrayAdapter<String> (this, android.R.layout.simple_list_item_1, android.R.id.text1, failedUploads));
+		successUploadsView.setAdapter(new ArrayAdapter<String> (this, R.layout.listviewitem_success, R.id.text1, successUploads));
+		failedUploadsView.setAdapter(new ArrayAdapter<String> (this, R.layout.listviewitem_failed, R.id.text1, failedUploads));
 	}
 
 	@Override
