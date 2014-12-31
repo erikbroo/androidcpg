@@ -179,6 +179,9 @@ public class UploadRemoteVideoAsyncTask extends AsyncTask<String, Integer, Integ
 							} else if (params[1].contains("vimeo")){
 								GetVimeoVideoDetailsAsyncTask getVimeoVideoThumbAsyncTask = new GetVimeoVideoDetailsAsyncTask(params[3], null);
 								bm = getVimeoVideoThumbAsyncTask.doInBackground();
+							} else if (params[1].contains("vine")){
+								GetVineVideoDetailsAsyncTask getVineVideoThumbAsyncTask = new GetVineVideoDetailsAsyncTask(params[3], null);
+								bm = getVineVideoThumbAsyncTask.doInBackground();
 							}
 							if (bm != null) {
 								UploadCustomThumbAsyncTask uploadCustomThumbAsyncTask = new UploadCustomThumbAsyncTask(videoId, bm, null);

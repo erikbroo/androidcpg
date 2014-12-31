@@ -53,6 +53,7 @@ public class SendShare extends Activity {
 	private Button mPrevItemButton = null;
 	private TextView mPreviewNotAvailable = null;
 
+	private boolean mGetAlbumTaskExecuted = false;
 	private boolean mCanCreateAlbums = false;
 
 	//This is given by the getAlbumsTask, last category position for insertion and user category id (this data is necessary for new album insertion)
@@ -234,6 +235,32 @@ public class SendShare extends Activity {
 							} else {
 								handled = false;
 							}
+						} else if ( valueLC.contains("vine.co")){
+							String name = "";
+							String title = extras.getString(Intent.EXTRA_SUBJECT);
+							if (title != null && title.trim().length() > 0){
+								name = buildValidName(title)+".vine";
+							} else {
+								int index = valueLC.indexOf(".co/");
+								if (index >= 0 && index <= value.length()) {
+									name = buildValidName(valueLC.substring(index+5))+".vine";
+								}
+							}
+							if (name.length() > 0) {
+								handled = true;
+								UploadService uploadService = AndroidCPG.getUploadService();
+								uploadService.mRemoteVideoUploadName = name;
+								uploadService.mRemoteVideoUpload = value;
+								uploadService.mRemoteVideoUploadDetails = new String[2];
+								uploadService.setVineVideoDetails(Utils.extractVineVideoId(uploadService.mRemoteVideoUpload));
+								mUploadButton.setText(R.string.uploadvine);
+								mTitleTextView.setEnabled(true);
+								mCaptionTextView.setEnabled(true);
+								mNextItemButton.setEnabled(true);
+								mPrevItemButton.setEnabled(true);
+							} else {
+								handled = false;
+							}
 						}
 					}
 				} catch (Exception e){}
@@ -277,6 +304,7 @@ public class SendShare extends Activity {
 			} else {
 				mPreviewNotAvailable.setVisibility(View.GONE);
 			}
+			mGetAlbumTaskExecuted = false;
 			createProgress();
 			isLoggedIn();
 		}
@@ -485,6 +513,7 @@ public class SendShare extends Activity {
 
 	void populateAlbumsFromTask(List<String[]> albums, boolean canCreateAlbums, int catId, int catPos){
 		//createAlbumButton.setEnabled(canCreateAlbums);
+		mGetAlbumTaskExecuted = true;
 		Log.i(TAG, "num fetchAlbums: " + albums.size()+" canCreateMore: "+canCreateAlbums);
 		UploadService uploadService = AndroidCPG.getUploadService();
 		if (uploadService == null){
@@ -688,6 +717,13 @@ public class SendShare extends Activity {
 				mPrevItemButton.setEnabled(true);
 			}
 		} else {
+			if (mGetAlbumTaskExecuted){
+				if (mCanCreateAlbums){
+					Toast.makeText(SendShare.this, R.string.no_albums_create_first, Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(SendShare.this, R.string.no_albums_cant_create, Toast.LENGTH_LONG).show();
+				}
+			}
 			uploadService.mSelectedAlbumId = -1;
 			mUploadButton.setEnabled(false);
 			mTitleTextView.setEnabled(false);

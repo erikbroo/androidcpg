@@ -86,6 +86,11 @@ public class Utils {
 		GetVimeoVideoDetailsAsyncTask getVimeoVideoDetails = new GetVimeoVideoDetailsAsyncTask(id, listener);
 		getVimeoVideoDetails.execute();
 	}
+	
+	public static void getVineVideoDetails(String id, GetVineVideoDetailsAsyncTask.GetVineVideoDetailsListener listener){
+		GetVineVideoDetailsAsyncTask getVineVideoDetails = new GetVineVideoDetailsAsyncTask(id, listener);
+		getVineVideoDetails.execute();
+	}
 
 	public static void createAlbum(String albumName, String catId, String catPos, CreateAlbumAsyncTask.CreateAlbumListener listener){
 		CreateAlbumAsyncTask createAlbumAsyncTask = new CreateAlbumAsyncTask(listener);
@@ -155,6 +160,20 @@ public class Utils {
 			return "";
 		}
 		url = url.substring(index+5);
+		if (url.endsWith("/")){
+			url = url.substring(0, url.length() - 1);
+		}
+		return url;
+	}
+	
+	public static String extractVineVideoId(String url){
+		url = url.trim();
+		String urlLC = url.toLowerCase();
+		int index = urlLC.indexOf(".co/v/");
+		if (index < 0 || index > url.length()) {
+			return "";
+		}
+		url = url.substring(index+6);
 		if (url.endsWith("/")){
 			url = url.substring(0, url.length() - 1);
 		}

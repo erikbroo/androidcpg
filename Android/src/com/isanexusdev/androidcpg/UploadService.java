@@ -120,6 +120,27 @@ public class UploadService extends Service {
 			}
 		});
 	}
+	
+	public void setVineVideoDetails(String id){
+		if (id == null || id.length() == 0){
+			return;
+		}
+
+		Utils.getVineVideoDetails(id, new GetVineVideoDetailsAsyncTask.GetVineVideoDetailsListener() {
+			@Override
+			public void result(final Bitmap thumb, final String title, final String description) {
+				final SendShare sendShareActivity = AndroidCPG.getSendShareActivity();
+				if (sendShareActivity != null) {
+					sendShareActivity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							sendShareActivity.setDetailsFromRemoterUrl(thumb,title,description);
+						}
+					});
+				}
+			}
+		});
+	}
 
 	void uploadNextFile() {
 		isUploading = true;

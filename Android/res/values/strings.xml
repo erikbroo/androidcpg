@@ -10,6 +10,7 @@
     <string name="uploadvideo">Upload Video</string>
     <string name="uploadyoutube">Upload Youtube Video</string>
     <string name="uploadvimeo">Upload Vimeo Video</string>
+    <string name="uploadvine">Upload Vine Video</string>
     <string name="uploadvideos">Upload %d Videos</string>
     <string name="uploadfiles">Upload %d Files</string>
     <string name="newalbum">Create new album</string>
@@ -62,5 +63,8 @@
     
     <string name="title_activity_result">Uploads Result</string>
     <string name="no_upload_info">No result info.</string>
+    
+    <string name="no_albums_create_first">No albums, create first one.</string>
+    <string name="no_albums_cant_create">You can\'t create albums. Contact gallery\'s admin</string>
 </resources>
 

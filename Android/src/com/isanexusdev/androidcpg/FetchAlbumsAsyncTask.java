@@ -124,6 +124,9 @@ public class FetchAlbumsAsyncTask extends AsyncTask<String, Integer, Integer> {
 				mCatid = Integer.parseInt(lines[2]);
 				mCatpos = Integer.parseInt(lines[3]);
 				for (int i = 4; i < lines.length; i++){
+					if (lines[i].equals("noalbums")){
+						continue;
+					}
 					mAlbums.add(lines[i].split("\\|sep\\|"));
 				}
 			}
